@@ -1,0 +1,47 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<conio.h>
+
+int main() {
+int x, m[2][5];
+int fila, columna;
+int otra_consulta;
+
+printf("--- 1. INGRESO DE LOS 10 NUMEROS ---\n");
+for (int i = 0; i < 2; i++) {
+for (int j = 0; j < 5; j++) {
+printf("Ingrese el numero para [Fila %d][Columna %d]: ", i + 1, j + 1);
+scanf("%d", &x);
+m[i][j] = x;
+}
+}
+printf("\n--- 2. MATRIZ COMPLETA ---\n");
+for (int i = 0; i < 2; i++) {
+for (int j = 0; j < 5; j++) {
+printf("%d\t", m[i][j]);
+}
+printf("\n");
+}
+do {
+printf("\n--- 3. VERIFICAR POSICION DESEADA ---\n");
+printf("Ingrese la Fila que desea consultar (1 o 2): ");
+scanf("%d", &fila);
+
+printf("Ingrese la Columna que desea consultar (1 a 5): ");
+scanf("%d", &columna);
+if (fila >= 1 && fila <= 2 && columna >= 1 && columna <= 5) {
+
+printf("\n>> El numero en [Fila %d][Columna %d] es: %d <<\n", fila, columna, m[fila - 1][columna - 1]);
+
+} else {
+printf("\nError: Posicion invalida. Recuerda que las filas son 1-2 y columnas 1-5.\n");
+}
+printf("\n¿Desea consultar otra posicion? (1: Si / 0: Salir): ");
+scanf("%d", &otra_consulta);
+
+} while (otra_consulta == 1);
+
+printf("\nPrograma finalizado. Presione cualquier tecla para cerrar...");
+getch();
+return 0;
+}
