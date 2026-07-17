@@ -1,0 +1,180 @@
+/* Grupo 5
+Integrantes: Erik Pena, Francisco Freire
+Localizador de llaves
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <windows.h> //necesario para el sleep
+#include <time.h>    //necesario para fecha y hora
+
+#define ARCHIVO "Registro_Busqueda\\historial.txt"
+
+// === ESTRUCTURA OBLIGATORIA ===
+typedef struct {
+    const char *nombre;
+    void (*funcion)(); // Puntero a la funcion correspondiente
+} MenuOpcion;
+
+// Funcion de preguntar con validacion estricta de S/N
+int preguntar(const char *lug, FILE *a) {
+    char r;
+    do {
+        printf("Crees que esten en %s? (S/N): ", lug);
+        scanf(" %c", &r);
+
+        // Limpia el buffer de entrada para evitar bucles si escriben palabras largas
+        while(getchar() != '\n');
+
+        if (r!='s' && r!='S' && r!='n' && r!='N') {
+            printf("Entrada invalida. Por favor ingresa solo S o N.\n");
+        }
+    } while (r!='s' && r!='S' && r!='n' && r!='N');
+
+    if (a) fprintf(a, "En %s? %c\n", lug, r);
+    return (r=='s' || r=='S');
+}
+
+// crea la carpeta y guarda el registro
+void buscar() {
+    system("cls");
+    system("mkdir Registro_Busqueda 2> nul");
+    FILE *a = fopen(ARCHIVO, "a");
+    int enc = 0;
+    const char *lug[] = {"el bano", "la sala", "el cuarto", "la cocina", "el patio", "el garaje"};
+
+    printf("--- BUSCANDO LLAVES ---\n");
+    if (a) {
+        time_t t=time(NULL); char f[15]; strftime(f, 15, "%d/%m/%Y", localtime(&t));
+        fprintf(a, "--- NUEVA BUSQUEDA --- [%s]\n", f);
+    }
+    for (int i=0; i<6; i++) {
+        if (preguntar(lug[i], a)) {
+            printf("Ve a %s.\n", lug[i]);
+            enc=1;
+            break;
+        }
+    }
+    if (!enc) printf("Sigue buscando!\n");
+    if (a) fclose(a);
+}
+
+// muestra el registro en pantalla
+void ver() {
+    system("cls");
+    FILE *a = fopen(ARCHIVO, "r");
+    printf("--- ULTIMA BUSQUEDA ---\n\n");
+    if (!a) { printf("Sin registros.\n"); return; }
+    char l[150], u[1000]="";
+    while (fgets(l, 150, a)) {
+        if (strstr(l, "--- NUEVA")) u[0]='\0';
+        strcat(u, l);
+    }
+    fclose(a);
+    printf("%s", u);
+}
+
+// para editar el registro
+void gest(int m) {
+    system("cls");
+    printf("--- EDITAR RESPUESTA ---\n");
+    FILE *a = fopen(ARCHIVO, "r");
+    if (!a) return;
+
+    char l[100][150];
+    int t=0, n;
+    while (fgets(l[t], 150, a) && t<100) printf("%d. %s", t+1, l[t++]);
+    fclose(a);
+    if (!t) return;
+
+    printf("\nLinea a editar (0 cancela): ");
+    if (scanf("%d",&n)!=1) { while(getchar()!='\n'); n=0; }
+    if (n>0 && n<=t) {
+        if (m==1) { // Lógica de editar solo S/N
+            char *p = strchr(l[n-1], '?');
+            if (p && strlen(p)>=3) {
+                char r;
+                do {
+                    printf("Nueva resp (S/N): ");
+                    scanf(" %c",&r);
+
+                    // Limpia el buffer
+                    while(getchar() != '\n');
+
+                    if(r!='s' && r!='S' && r!='n' && r!='N') {
+                        printf("Entrada invalida. Ingresa solo S o N.\n");
+                    }
+                } while(r!='s' && r!='S' && r!='n' && r!='N');
+                p[2] = r;
+            } else {
+                printf("Linea no editable.\n");
+                return;
+            }
+        }
+
+        a = fopen(ARCHIVO, "w");
+        for (int i=0; i<t; i++) if (l[i][0]) fprintf(a, "%s", l[i]);
+        fclose(a);
+        printf("Operacion exitosa.\n");
+    }
+}
+
+// Funciones cortas
+void editar() { gest(1); }
+
+void eliminar() {
+    system("cls");
+    FILE *a = fopen(ARCHIVO, "w"); // Abrir con "w" trunca (limpia) el archivo automáticamente
+    if (a) {
+        fclose(a);
+        printf("Todo el registro ha sido eliminado con exito.\n");
+    } else {
+        printf("Error al intentar eliminar el registro.\n");
+    }
+}
+
+void alarma() {
+    system("cls");
+    printf("Alarma...\n");
+    Sleep(5000);
+}
+
+void salir() {
+    system("cls");
+    printf("\nAdios!\n");
+}
+
+int main() {
+    // Array de Estructuras: Asocia texto con su funcion
+    MenuOpcion menu[] = {
+        {"Buscar llaves", buscar},
+        {"Ver ultima busqueda", ver},
+        {"Eliminar todo el registro", eliminar},
+        {"Editar respuesta", editar},
+        {"Activar alarma sonora", alarma},
+        {"Salir", salir}
+    };
+    int opc, num_opc = sizeof(menu)/sizeof(menu[0]);
+
+    do {
+        system("cls");
+        printf("--- MENU PRINCIPAL ---\n");
+        for (int i=0; i<num_opc; i++) printf("%d. %s\n", i+1, menu[i].nombre);
+        printf("Opcion: ");
+        if (scanf("%d", &opc)!=1) {
+            while(getchar()!='\n'); // Limpia si escriben letras en el menu
+            opc=0;
+        }
+
+        // Ejecucion a traves de la estructura
+        if (opc>=1 && opc<=num_opc) {
+            menu[opc-1].funcion();
+            if (opc != num_opc) { printf("\n"); system("pause"); }
+        } else {
+            printf("Opcion no valida.\n");
+            system("pause");
+        }
+    } while (opc != num_opc);
+
+    return 0;
+}
