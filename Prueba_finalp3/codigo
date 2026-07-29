@@ -1,0 +1,36 @@
+#include <stdio.h>
+int main(){
+int minimo,maximo;
+int max_intentos;
+int numerosecreto;
+int intentos [10][3];
+int cantidadintentos=0;
+int adivinado=0;
+ printf("\n====================\n");
+ printf("     Numero Secreto     ");
+ printf("\n====================\n");
+ //RF1
+ do{
+        printf("Ingrese el numero minimo: ");
+        scanf("%d", &minimo);
+        printf("Ingrese el numero maximo: ");
+        scanf("%d", &maximo);
+}while(minimo>=maximo);
+//RQ2
+
+if (cantidadintentos<=1 || cantidadintentos >=10){
+    printf("Ingrese el numero de intentos (max:10): ");
+    scanf("%d", &cantidadintentos);
+}
+//Req3
+do {
+        printf("Ingrese la cantidad de intentos (1 a 10): ");
+        scanf("%d", &cantidadintentos);
+        if (cantidadintentos < 1 || cantidadintentos > 10) {
+            printf("Error: intentos fuera de rango. Intente de nuevo.\n\n");
+        }
+
+    } while (cantidadintentos < 1 || cantidadintentos > 10);
+
+    printf("Cantidad de intentos aceptada: %d\n", cantidadintentos);
+}
